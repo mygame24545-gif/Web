@@ -2,22 +2,26 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <!-- This line ensures the game scales perfectly on mobile screens -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>3D Parkour Game</title>
-    <style>
-        /* Removes borders and gives us a sky-blue background to start */
-        body { margin: 0; overflow: hidden; background-color: #87CEEB; }
-        canvas { display: block; }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- This links the Three.js 3D library directly into our project -->
+    <!-- Mobile Touch UI Overlay -->
+    <div id="ui-layer">
+        <div id="score-board">Stage 1</div>
+        <div id="joystick-base">
+            <div id="joystick-knob"></div>
+        </div>
+        <div id="jump-btn">JUMP</div>
+    </div>
+
+    <!-- 1. Load Three.js 3D Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    
-    <!-- Our actual game code will go here in the next steps -->
-    <script>
-        console.log("3D Engine Loaded!");
-    </script>
+
+    <!-- 2. Load Game Logic in Correct Order -->
+    <script src="game.js"></script>
+    <script src="level.js"></script>
+    <script src="player.js"></script>
 </body>
 </html>
