@@ -1,7 +1,7 @@
 // 1. CREATE THE 3D SCENE & CAMERA
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x87ceeb); // Sky blue background
-scene.fog = new THREE.FogExp2(0x87ceeb, 0.015); // Fog to make distant jump platforms look smooth
+scene.fog = new THREE.FogExp2(0x87ceeb, 0.015); // Smooth fog for parkour platforms
 
 const camera = new THREE.PerspectiveCamera(
     75, 
@@ -13,7 +13,7 @@ const camera = new THREE.PerspectiveCamera(
 // 2. CREATE THE 3D RENDERER (The Graphics Engine)
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // High resolution on modern screens
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // High resolution on mobile
 renderer.shadowMap.enabled = true; // Enables 3D platform shadows
 document.body.appendChild(renderer.domElement);
 
@@ -37,7 +37,12 @@ window.addEventListener('resize', () => {
 function animate() {
     requestAnimationFrame(animate);
     
-    // Render the scene from the camera's point of view
+    // Run player physics, controls, and gravity from player.js
+    if (typeof updatePlayer === 'function') {
+        updatePlayer();
+    }
+    
+    // Render the 3D scene from the camera view
     renderer.render(scene, camera);
 }
 
