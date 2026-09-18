@@ -2,26 +2,75 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>3D Parkour Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, screen-orientation=landscape">
+    <title>3D Parkour Obby</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Mobile Touch UI Overlay -->
-    <div id="ui-layer">
-        <div id="score-board">Stage 1</div>
-        <div id="joystick-base">
-            <div id="joystick-knob"></div>
-        </div>
-        <div id="jump-btn">JUMP</div>
+    <!-- LOADING SCREEN -->
+    <div id="loading-screen" class="ui-overlay">
+        <h1 class="game-title">3D PARKOUR OBBY</h1>
+        <p class="loading-sub">Initializing 3D World & Physics...</p>
     </div>
 
-    <!-- 1. Load Three.js 3D Library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- MAIN MENU -->
+    <div id="main-menu" class="ui-overlay">
+        <h1 class="game-title">3D PARKOUR OBBY</h1>
+        <div class="menu-buttons">
+            <button onclick="startGame()" class="btn btn-play">PLAY GAME</button>
+            <button onclick="openLevelSelect()" class="btn">LEVELS (100)</button>
+            <button onclick="openShop()" class="btn">SHOP</button>
+            <button onclick="openAboutUs()" class="btn">ABOUT US</button>
+            <button onclick="openSettings()" class="btn">SETTINGS</button>
+        </div>
+    </div>
 
-    <!-- 2. Load Game Logic in Correct Order -->
-    <script src="game.js"></script>
+    <!-- IN-GAME HUD -->
+    <div id="hud-layer" class="hidden">
+        <div class="hud-top">
+            <div id="level-display" class="hud-box">LEVEL 1</div>
+            <div id="coin-display" class="hud-box">🪙 <span id="coin-count">0</span></div>
+            <button onclick="pauseGame()" class="btn-icon">⏸️</button>
+        </div>
+
+        <button id="ad-reward-btn" onclick="triggerManualAdReward()">📺 Watch Ad (+100 🪙)</button>
+
+        <!-- TOUCH CONTROLS -->
+        <div id="joystick-container">
+            <div id="joystick-base">
+                <div id="joystick-knob"></div>
+            </div>
+        </div>
+        <div id="jump-button">JUMP</div>
+    </div>
+
+    <!-- MODALS -->
+    <div id="shop-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>SHOP & CUSTOMIZATION</h2>
+            <div class="shop-tabs">
+                <button id="tab-chars" onclick="switchShopTab('characters')" class="tab-btn active">Characters (50)</button>
+                <button id="tab-effects" onclick="switchShopTab('effects')" class="tab-btn">Jump Effects (100+)</button>
+            </div>
+            <div id="shop-grid" class="grid-container"></div>
+            <button onclick="closeModal('shop-modal')" class="btn-close">CLOSE</button>
+        </div>
+    </div>
+
+    <div id="about-modal" class="modal hidden">
+        <div class="modal-content text-content">
+            <h2>ABOUT 3D PARKOUR OBBY</h2>
+            <div id="about-text-container"></div>
+            <button onclick="closeModal('about-modal')" class="btn-close">CLOSE</button>
+        </div>
+    </div>
+
+    <!-- LIBRARIES AND MODULES -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="about.js"></script>
+    <script src="shop.js"></script>
     <script src="level.js"></script>
     <script src="player.js"></script>
+    <script src="game.js"></script>
 </body>
 </html>
