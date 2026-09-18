@@ -1,33 +1,74 @@
-// Array to store all platforms so our player can land on them
-const platforms = [];
+// 100-LEVEL GENERATOR ENGINE
+let levelPlatforms = [];
+let finishPlatform = null;
 
-// Helper function to generate a 3D block platform
-function createPlatform(x, y, z, width, height, depth, color = 0xffffff) {
-    const geometry = new THREE.BoxGeometry(width, height, depth);
-    const material = new THREE.MeshStandardMaterial({ 
-        color: color, 
-        roughness: 0.4 
-    });
-    const platform = new THREE.Mesh(geometry, material);
-    
-    platform.position.set(x, y, z);
-    platform.receiveShadow = true;
-    platform.castShadow = true;
-    
-    scene.add(platform);
-    platforms.push(platform);
-    return platform;
+function clearLevel() {
+    levelPlatforms.forEach(p => scene.remove(p));
+    levelPlatforms = [];
+    if (finishPlatform) scene.remove(finishPlatform);
 }
 
-// 1. STARTING PLATFORM (Green Floor)
-createPlatform(0, -1, 0, 10, 1, 10, 0x2e8b57);
+function buildLevel(levelNum) {
+    clearLevel();
 
-// 2. FLOATING PARKOUR JUMP BLOCKS (Ascending Course)
-createPlatform(0, 1, -12, 4, 1, 4, 0xffffff);
-createPlatform(0, 3, -22, 4, 1, 4, 0xffffff);
-createPlatform(6, 5, -30, 4, 1, 4, 0xffffff);
-createPlatform(0, 7, -40, 4, 1, 4, 0xffffff);
-createPlatform(-6, 9, -50, 4, 1, 4, 0xffffff);
+    // Theme Selector
+    let platformColor = 0x2e8b57; // Grass/Nature (1-30)
+    let skyColor = 0x87ceeb;
 
-// 3. FIRST CHECKPOINT PLATFORM (Gold/Yellow Floor)
-createPlatform(0, 11, -62, 8, 1, 8, 0xffd700);
+    if (levelNum > 30 && levelNum <= 65) {
+        platformColor = 0xff007f; // Neon Sky (31-65)
+        skyColor = 0x1a0033;
+    } else if (levelNum > 65) {
+        platformColor = 0x00dfff; // Ice Glacial (66-100)
+        skyColor = 0xd0f4de;
+    }
+
+    scene.background.setHex(skyColor);
+    scene.fog.color.setHex(skyColor);
+
+    // 1. Starting Base Platform
+    const startBase = createBlock(0, -0.5, 0, 8, 1, 8, 0x333333);
+    
+    // 2. Generate Platforms across predictability matrix
+    let lastZ = 0;
+    let lastY = 0;
+    const totalBlocks = 8 + Math.min(levelNum, 25);
+
+    for (let i = 0; i < totalBlocks; i++) {
+        const gapZ = 5.5 + Math.random() * 2.5; // Guaranteed within fixed jump range
+        const gapX = (Math.random() - 0.5) * 6;
+        lastY += (Math.random() - 0.3) * 1.5;
+        lastZ -= gapZ;
+
+        const p = createBlock(gapX, lastY, lastZ, 3.5, 0.8, 3.5, platformColor);
+        levelPlatforms.push(p);
+    }
+
+    // 3. Gold Finish Pad
+    finishPlatform = createBlock(0, lastY + 1, lastZ - 8, 6, 1, 6, 0xffd700);
+    document.getElementById('level-display').innerText = `LEVEL ${levelNum}`;
+}
+
+function createBlock(x, y, z, w, h, d, color) {
+    const geo = new THREE.BoxGeometry(w, h, d);
+    const mat = new THREE.MeshStandardMaterial({ color: color, roughness: 0.3 });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(x, y, z);
+    mesh.receiveShadow = true;
+    mesh.castShadow = true;
+    scene.add(mesh);
+    return mesh;
+}
+
+function updatePlatforms() {
+    // Reserved for moving/rotating platform logic in levels 30+
+}
+
+function onLevelComplete() {
+    currentLevelIndex++;
+    if (currentLevelIndex % 3 === 0) {
+        triggerMilestoneAdReward();
+    }
+    buildLevel(currentLevelIndex);
+    playerGroup.position.set(0, 3, 0);
+}
