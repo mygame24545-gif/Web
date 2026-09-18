@@ -1,50 +1,71 @@
-// 1. CREATE THE 3D SCENE & CAMERA
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x87ceeb); // Sky blue background
-scene.fog = new THREE.FogExp2(0x87ceeb, 0.015); // Smooth fog for parkour platforms
+// 3D PARKOUR OBBY - CORE ENGINE
+let scene, camera, renderer, sunLight;
+let currentLevelIndex = 1;
+let isGamePaused = false;
 
-const camera = new THREE.PerspectiveCamera(
-    75, 
-    window.innerWidth / window.innerHeight, 
-    0.1, 
-    1000
-);
+function initEngine() {
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x87ceeb);
+    scene.fog = new THREE.FogExp2(0x87ceeb, 0.012);
 
-// 2. CREATE THE 3D RENDERER (The Graphics Engine)
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // High resolution on mobile
-renderer.shadowMap.enabled = true; // Enables 3D platform shadows
-document.body.appendChild(renderer.domElement);
+    camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-// 3. ADD LIGHTING (Sunlight & Environment Light)
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-scene.add(ambientLight);
+    renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    document.body.appendChild(renderer.domElement);
 
-const sunLight = new THREE.DirectionalLight(0xffffff, 0.8);
-sunLight.position.set(20, 40, 20);
-sunLight.castShadow = true;
-scene.add(sunLight);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.65);
+    scene.add(ambientLight);
 
-// 4. HANDLE MOBILE RESIZING & ROTATION
-window.addEventListener('resize', () => {
+    sunLight = new THREE.DirectionalLight(0xffffff, 0.85);
+    sunLight.position.set(30, 50, 20);
+    sunLight.castShadow = true;
+    sunLight.shadow.mapSize.width = 1024;
+    sunLight.shadow.mapSize.height = 1024;
+    scene.add(sunLight);
+
+    window.addEventListener('resize', onWindowResize);
+    
+    // Hide loading screen
+    document.getElementById('loading-screen').classList.add('hidden');
+}
+
+function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
-});
-
-// 5. MAIN 60-FPS ANIMATION LOOP
-function animate() {
-    requestAnimationFrame(animate);
-    
-    // Run player physics, controls, and gravity from player.js
-    if (typeof updatePlayer === 'function') {
-        updatePlayer();
-    }
-    
-    // Render the 3D scene from the camera view
-    renderer.render(scene, camera);
 }
 
-// Start rendering
-animate();
+function startGame() {
+    document.getElementById('main-menu').classList.add('hidden');
+    document.getElementById('hud-layer').classList.remove('hidden');
+    
+    initPlayer();
+    buildLevel(currentLevelIndex);
+    animate();
+}
+
+function pauseGame() {
+    isGamePaused = !isGamePaused;
+    if (isGamePaused) {
+        document.getElementById('main-menu').classList.remove('hidden');
+    } else {
+        document.getElementById('main-menu').classList.add('hidden');
+    }
+}
+
+function animate() {
+    if (!isGamePaused) {
+        requestAnimationFrame(animate);
+        updatePlayerPhysics();
+        updatePlatforms();
+        renderer.render(scene, camera);
+    }
+}
+
+window.onload = () => {
+    initEngine();
+};
